@@ -1,13 +1,15 @@
 package com.bookstore.forreal.Model.DataTransfer;
 
-import java.util.List;
+import java.util.ArrayList;
+
 
 public class DTBook {
     private String name;
     private long price;
-    private List<String> authorname;
+    private ArrayList<DTAuthor> authors;
     private String language;
     private String genre;
+    
 
     public DTBook(String name, String language) {
         this.name = name;
@@ -33,12 +35,12 @@ public class DTBook {
         this.price = price;
     }
 
-    public List<String> getAuthorname() {
-        return authorname;
+    public ArrayList<DTAuthor> getAuthors() {
+        return authors;
     }
 
-    public void setAuthorname(List<String> authorname) {
-        this.authorname = authorname;
+    public void setAuthors(ArrayList<DTAuthor> authors) {
+        this.authors = authors;
     }
 
     public String getLanguage() {
@@ -55,5 +57,5 @@ public class DTBook {
 
     public void setGenre(String genre) {
         this.genre = genre;
-    }
+    }    
 }

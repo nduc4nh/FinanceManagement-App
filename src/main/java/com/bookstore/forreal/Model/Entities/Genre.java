@@ -1,5 +1,9 @@
 package com.bookstore.forreal.Model.Entities;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +17,7 @@ public class Genre {
     String name;
     //@Column(nullable = false)
     @ManyToMany(mappedBy = "genres")
+    @JsonBackReference
     List<Book> books;
     @Column
     Date createdDate;
@@ -40,6 +45,7 @@ public class Genre {
 
     public Genre(String name){
         this.name = name;
+        this.books = null;
     }
 
     public int getGenreId() {

@@ -1,5 +1,10 @@
 package com.bookstore.forreal.Model.Entities;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -13,12 +18,15 @@ public class Book {
     String name;
     //@Column(nullable = false)
     @ManyToMany
+    @JsonManagedReference
     List<Genre> genres;
     //@Column(nullable = false)
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonManagedReference
     List<Author> authors;
     //@Column(nullable = false)
     @ManyToMany
+    @JsonManagedReference
     List<Language> languages;
     @Column(nullable = false)
     long price;

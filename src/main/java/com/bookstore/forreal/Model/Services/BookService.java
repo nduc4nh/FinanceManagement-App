@@ -1,10 +1,12 @@
 package com.bookstore.forreal.Model.Services;
+
 import com.bookstore.forreal.Model.Entities.Book;
 import com.bookstore.forreal.Model.Repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,12 +14,29 @@ import java.util.Optional;
 public class BookService implements Services<Book> {
     @Autowired
     BookRepository repository;
-    /*
+    
     @Override
     public Book findByName(String name) {
+        // TODO Auto-generated method stub
+        List<Book> authors = (List<Book>) repository.findAll();
+        for (Book ele:authors)
+        {
+            if (ele.getName().strip().toLowerCase().equals(name.strip().toLowerCase())) return ele;
+        }
         return null;
     }
-    */
+    
+    @Override
+    public List<Book>  findAllByName(String[] names){
+        // TODO Auto-generated method stub
+        List<Book> books = (List<Book>) repository.findAll();
+        ArrayList <Book> re = new ArrayList<Book>();
+        for (String name:names)
+        {
+            re.add(findByName(name)); 
+        }
+        return re;
+    }
     @Transactional
     @Override
     public List<Book> findAll() {

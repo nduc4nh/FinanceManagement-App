@@ -1,10 +1,12 @@
 package com.bookstore.forreal.Model.Services;
+
 import com.bookstore.forreal.Model.Entities.Language;
 import com.bookstore.forreal.Model.Repository.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,12 +14,30 @@ import java.util.Optional;
 public class LanguageService implements Services<Language>{
     @Autowired
     LanguageRepository repository;
-    /*
+  
     @Override
     public Language findByName(String name) {
+        // TODO Auto-generated method stub
+        List<Language> langs = (List<Language>) repository.findAll();
+        for (Language ele:langs)
+        {
+            if (ele.getName().strip().toLowerCase().equals(name.strip().toLowerCase())) return ele;
+        }
         return null;
     }
-    */
+    
+    @Override
+    public List<Language> findAllByName(String[] names) {
+        // TODO Auto-generated method stub
+        List<Language> langs = (List<Language>) repository.findAll();
+        ArrayList <Language> re = new ArrayList<Language>();
+        for (String name:names)
+        {
+            re.add(findByName(name)); 
+        }
+        return re;
+    }
+
     @Transactional
     @Override
     public List<Language> findAll() {

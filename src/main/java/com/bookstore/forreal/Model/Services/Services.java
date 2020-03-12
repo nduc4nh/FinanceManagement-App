@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Services<T> {
-    //T findByName(String name);
+    List<T> findAllByName(String[] names);
+    T findByName(String name);
     List<T> findAll();
     List<T> findAllById(List<Integer> Ids);
     Optional<T> findById(Integer Id);

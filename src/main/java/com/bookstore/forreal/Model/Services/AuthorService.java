@@ -1,10 +1,13 @@
 package com.bookstore.forreal.Model.Services;
 import com.bookstore.forreal.Model.Entities.Author;
 import com.bookstore.forreal.Model.Repository.AuthorRepository;
+import com.bookstore.forreal.Model.Tool.preprocessString;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,17 +20,40 @@ public class AuthorService implements Services<Author> {
     public Author findByName(String name) {
         return null;
     }*/
-    @Transactional
+    
+    
+    @Override
+    public Author findByName(String name) {
+        // TODO Auto-generated method stub
+        List<Author> authors = (List<Author>) repository.findAll();
+        for (Author ele:authors)
+        {
+            if (preprocessString.doString(ele.getName()).equals(preprocessString.doString(name))) return ele;
+        }
+        return null;
+    }
+    
+    @Override
+    public List<Author> findAllByName(String[] names) {
+        // TODO Auto-generated method stub
+        ArrayList <Author> re = new ArrayList<Author>();
+        for (String name:names)
+        {
+            re.add(findByName(name)); 
+        }
+        return re;
+    }
+  
     @Override
     public List<Author> findAll() {
         return (List<Author>) repository.findAll();
     }
-    @Transactional
+
     @Override
     public List<Author> findAllById(List<Integer> Ids) {
         return (List<Author>) repository.findAllById(Ids);
     }
-    @Transactional
+   
     @Override
     public Optional<Author> findById(Integer Id) {
         return repository.findById(Id);
@@ -57,5 +83,4 @@ public class AuthorService implements Services<Author> {
     public boolean existById(int Id) {
         return repository.existsById(Id);
     }
-
 }
