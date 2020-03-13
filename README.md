@@ -1,2 +1,3 @@
 # mybookstore
-<p> d </p>
+
+<img src="pic_trulli.jpg" alt="Italian Trulli">
