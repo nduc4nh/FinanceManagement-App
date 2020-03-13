@@ -11,6 +11,7 @@ import com.bookstore.forreal.Model.Services.LanguageService;
 import com.bookstore.forreal.Model.Tool.preprocessString;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -30,18 +31,18 @@ public class BookController {
     GenreService subserviceGe;
 
 
-    @GetMapping("/Book/get")
+    @GetMapping("GET/Book")
     public List<Book> getAllBook()
     {
         return service.findAll();
     }
-    @GetMapping("/Book/get/{id}")
+    @GetMapping("GET/Book/{id}")
     public Optional<Book> getBookById(@PathVariable("id") int id)
     {
         return service.findById(id);
     }
-    @PostMapping("/Book/post")
-    public void addBook(@RequestParam("name") String name,@RequestParam("authors") String authors,@RequestParam("price") long price,@RequestParam("genre") String genres,@RequestParam("lang") String langs)
+    @PostMapping("POST/Book")
+    public void addBook(@RequestParam("name") String name,@RequestParam("authors") String authors,@RequestParam("price") String price,@RequestParam("genre") String genres,@Nullable@RequestParam("lang") String langs)
     {
         List<Book> books = service.findAll();
         for (Book ele:books)
@@ -50,7 +51,8 @@ public class BookController {
         }
         //Adding authors
         ArrayList<Author> authorlist = (ArrayList<Author>) subserviceAu.findAllByName(authors.strip().split(","));
-        Book tmp = new Book(name,price);
+        Book tmp = new Book(name,Long.parseLong(preprocessString.doString(price)));
+        
         for (Author ele:authorlist)
         {
             ele.getBooks().add(tmp);
@@ -78,27 +80,11 @@ public class BookController {
         service.Save(tmp);
     }
     
-    @PutMapping("/Book/put/{id}")
-    /*public void modifyBook(@PathVariable("id") int id, @RequestBody Book modifiedbook)
-    {
-        if (!service.existById(id))
-        {
-            return;
-        }
-        Book thisbook = service.findById(id).get();
-        thisbook.setAuthors(modifiedbook.getAuthors());
-        thisbook.setGenres(modifiedbook.getGenres());
-        thisbook.setLanguages(modifiedbook.getLanguages());
-        thisbook.setName(modifiedbook.getName());
-        thisbook.setPrice(modifiedbook.getPrice());
-        thisbook.setModifiledDate(new Date());
-
-        service.Save(thisbook);
-    }*/
-    public void modifyBook(@PathVariable("id") int id,@RequestParam("name")String name,@RequestParam("price") long newprice,
-    @RequestParam("newgenre") String newgenre,@RequestParam("removegenre") String removegenre,
-    @RequestParam("newauthor") String newauthor,@RequestParam("removeauthor")  String removeauthor,
-    @RequestParam("newlang")  String newlang,@RequestParam("removelang")  String removelang)
+    @PutMapping("PUT/Book/{id}")
+    public void modifyBook(@PathVariable("id") int id,@Nullable@RequestParam("name")String name,@Nullable@RequestParam("price") String price,
+    @Nullable@RequestParam("newgenre") String newgenre,@Nullable@RequestParam("removegenre") String removegenre,
+    @Nullable@RequestParam("newauthor") String newauthor,@Nullable@RequestParam("removeauthor")  String removeauthor,
+    @Nullable@RequestParam("newlang")  String newlang,@Nullable@RequestParam("removelang")  String removelang)
     {
         if (!service.existById(id))
         {
@@ -106,96 +92,47 @@ public class BookController {
         }
         Book thisbook = service.findById(id).get();
         List<Book> books = service.findAll();
-        for (Book ele:books)
+        
+        //modifying name below 
+        if (name!=null) 
         {
-            String tmp = ele.getName();
-            if (preprocessString.doString(tmp) == preprocessString.doString(name)
-            )
+            for (Book ele:books)
             {
-                name = ele.getName();
+                String tmp = ele.getName();
+                if (preprocessString.doString(tmp) == preprocessString.doString(name)
+                )
+                {
+                    name = ele.getName();
+                }
             }
+            thisbook.setName(name);
         }
-        thisbook.setName(name);
-        if (newprice > 0) thisbook.setPrice(newprice);
-
+        
+        //modifyin price below 
+        try{
+            long newprice = Long.parseLong(preprocessString.doString(price));
+        if (newprice >= 0) thisbook.setPrice(newprice);
+        }catch(Exception e){}
+        
         //GENRE_ADD_AND_REMOVE
-        List<Genre> genres = thisbook.getGenres(); 
-        Genre newGenre = subserviceGe.findByName(newgenre);
-        Genre dumbGenre = subserviceGe.findByName(removegenre);
-        
-        if (dumbGenre != null)
-        {   
-            System.out.println("ok");
-            genres.remove(dumbGenre);
-            dumbGenre.getBooks().remove(thisbook);
-            dumbGenre.setModifiledDate(new Date());
-            subserviceGe.Save(dumbGenre);
-        }  
-        
-        if (newGenre != null)
-        {    
-            if (!books.contains(newGenre)) 
-            {   
-                genres.add(newGenre);
-                newGenre.getBooks().add(thisbook);
-                newGenre.setModifiledDate(new Date());
-            }
-            subserviceGe.Save(newGenre);
-        }
-        //AUTHOR_ADD_AND_REMOVE
-        List<Author> authors = thisbook.getAuthors(); 
-        Author newAuthor = subserviceAu.findByName(newauthor);
-        Author dumbAuthor = subserviceAu.findByName(removeauthor);
-        
-        if (dumbAuthor != null)
-        {   
-            System.out.println("ok");
-            authors.remove(dumbAuthor);
-            dumbAuthor.getBooks().remove(thisbook);
-            dumbAuthor.setModifiledDate(new Date());
-            subserviceAu.Save(dumbAuthor);
-        }  
-        
-        if (newAuthor != null)
-        {    
-            if (!books.contains(newAuthor)) 
-            {   
-                authors.add(newAuthor);
-                newAuthor.getBooks().add(thisbook);
-                newAuthor.setModifiledDate(new Date());
-            }
-            subserviceAu.Save(newAuthor);
-        }
+        bindingAction bookAndgenre = new bindingAction<Book,Genre,BookService,GenreService>();
+        if (newgenre != null) bookAndgenre.addToSource(service, subserviceGe, thisbook, newgenre, books);
+        if (removegenre != null) bookAndgenre.removeFromSource(service, subserviceGe, thisbook, removegenre, books);
+
+        bindingAction bookAndauthor = new bindingAction<Book,Author,BookService,AuthorService>();
+        if (newauthor != null) bookAndauthor.addToSource(service, subserviceAu, thisbook, newauthor, books);
+        if (removeauthor != null) bookAndauthor.removeFromSource(service, subserviceAu, thisbook, removeauthor, books);
 
         //LANGUAGE_ADD_AND_REMOVE
-        List<Language> langs = thisbook.getLanguages(); 
-        Language newLang = subserviceLa.findByName(newlang);
-        Language dumbLang = subserviceLa.findByName(removelang);
-        
-        if (dumbLang != null)
-        {   
-            System.out.println("ok");
-            langs.remove(dumbLang);
-            dumbLang.getBooks().remove(thisbook);
-            dumbLang.setModifiledDate(new Date());
-            subserviceLa.Save(dumbLang);
-        }  
-        
-        if (newLang != null)
-        {    
-            if (!books.contains(newLang)) 
-            {   
-                langs.add(newLang);
-                newLang.getBooks().add(thisbook);
-                newLang.setModifiledDate(new Date());
-            }
-            subserviceLa.Save(newLang);
-        }
+        bindingAction bookAndlang = new bindingAction<Book,Language,BookService,LanguageService>();
+        if (newlang != null) bookAndlang.addToSource(service, subserviceLa, thisbook, newlang, books);
+        if (removelang != null) bookAndlang.removeFromSource(service, subserviceLa, thisbook, removelang, books);
         
         thisbook.setModifiledDate(new Date());
         service.Save(thisbook);
+        
     }
-    @DeleteMapping("/Book/delete/{id}")
+    @DeleteMapping("DELETE/Book/{id}")
     public void deleteBook(@PathVariable("id") int id)
     {
         if (!service.existById(id))

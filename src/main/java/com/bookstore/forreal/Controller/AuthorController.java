@@ -9,9 +9,10 @@ import com.bookstore.forreal.Model.Services.GenreService;
 import com.bookstore.forreal.Model.Tool.preprocessString;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -32,20 +33,20 @@ public class AuthorController {
     @Autowired
     GenreService s;
     
-    @GetMapping("Author/get")
+    @GetMapping("GET/Author")
     public List<Author> getAllAuthor()
     {
         
         return service.findAll();
     }
-    @GetMapping("Author/get/{id}")
+    @GetMapping("GET/Author/{id}")
     public Optional<Author> getAuthorById(@PathVariable("id") Integer id)
     {
         return service.findById(id);
     }
     
 
-    @PostMapping ("Author/post")
+    @PostMapping ("POST/Author")
     public void addAuthor(@RequestParam("name") String name)
     {
         List<Author> tmpAuthors = service.findAll();
@@ -60,21 +61,8 @@ public class AuthorController {
         service.Save(tmp);
     }
 
-    @PutMapping("Author/put/{id}")
-    /*public void modifyAuthor(@PathVariable("id") int id,@RequestBody Author newform)
-    
-    {
-        if (!service.existById(id))
-        {
-            return;
-        }
-        Author thisguy = service.findById(id).get();
-        thisguy.setName(newform.getName());
-        thisguy.setBooks(newform.getBooks());
-        thisguy.setModifiledDate(new Date());
-        service.Save(thisguy);
-    }*/
-    public void modifyAuthor(@PathVariable("id") int id,@RequestParam("name") String name,@RequestParam("new") String newBook,@RequestParam("remove") String book2remove)
+    @PutMapping("PUT/Author/{id}")
+    public void modifyAuthor(@PathVariable("id") int id,@Nullable@RequestParam("name") String name,@Nullable@RequestParam("newbook") String newbook,@Nullable@RequestParam("removebook") String removebook)
     {
         if (!service.existById(id))
         {
@@ -82,47 +70,29 @@ public class AuthorController {
         }
         Author thisguy = service.findById(id).get();
         List<Author> authors = service.findAll();
-        List<Book> books = thisguy.getBooks(); 
-        Book newOne = subservice.findByName(newBook);
-        Book dumbOne = subservice.findByName(book2remove);
-        
-        if (dumbOne != null)
-        {   
-            System.out.println("ok");
-            books.remove(dumbOne);
-            dumbOne.getAuthors().remove(thisguy);
-            dumbOne.setModifiledDate(new Date());
-            subservice.Save(dumbOne);
-        }  
-        
-        if (newOne != null)
-        {    
-            if (!books.contains(newOne)) 
-            {   
-                books.add(newOne);
-                newOne.getAuthors().add(thisguy);
-                newOne.setModifiledDate(new Date());
-            }
-            subservice.Save(newOne);
-        }
 
-        for (Author ele:authors)
+        bindingAction authorAndbook = new bindingAction<Author,Book,AuthorService,BookService>();
+        if (newbook != null) authorAndbook.addToSource(service, subservice, thisguy, newbook, authors);
+        if (removebook != null) authorAndbook.removeFromSource(service, subservice, thisguy, removebook, authors);
+        if (name!= null)
         {
-            String tmp = ele.getName();
-            if (preprocessString.doString(tmp) == preprocessString.doString(name)
-            )
+            for (Author ele:authors)
             {
-                name = ele.getName();
-                break;
+                String tmp = ele.getName();
+                if (preprocessString.doString(tmp) == preprocessString.doString(name)
+                )
+                {
+                    name = ele.getName();
+                    break;
+                }
             }
+            thisguy.setName(name);
         }
-
-        thisguy.setName(name);
         thisguy.setModifiledDate(new Date());
         service.Save(thisguy);
     }
 
-    @DeleteMapping("Author/delete/{id}")
+    @DeleteMapping("DELETE/Author/{id}")
     public void deleteAuthor(@PathVariable("id") int id)
     {
         if (!service.existById(id))

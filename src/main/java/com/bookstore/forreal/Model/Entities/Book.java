@@ -2,8 +2,10 @@ package com.bookstore.forreal.Model.Entities;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 
 import java.util.Date;
 import java.util.List;
@@ -25,11 +27,15 @@ public class Book {
     @JsonManagedReference
     List<Author> authors;
     //@Column(nullable = false)
-    @ManyToMany
-    @JsonManagedReference
-    List<Language> languages;
+    @OneToMany(mappedBy = "book")
+    @JsonBackReference
+    List<OptionalEntity> optionalbooks;
     @Column(nullable = false)
     long price;
+    @OneToMany(mappedBy = "book")
+    List<Image> images;
+    @ManyToMany
+    List<Language> languages;
     @Column
     Date createdDate;
     @Column
@@ -67,14 +73,6 @@ public class Book {
 
     public void setAuthors(List<Author> authors) {
         this.authors = authors;
-    }
-
-    public List<Language> getLanguages() {
-        return languages;
-    }
-
-    public void setLanguages(List<Language> languages) {
-        this.languages = languages;
     }
 
     public long getPrice() {
@@ -127,5 +125,29 @@ public class Book {
     @Override
     public int hashCode() {
         return Objects.hash(getBookId());
+    }
+
+    public List<OptionalEntity> getOptionalbooks() {
+        return optionalbooks;
+    }
+
+    public void setOptionalbooks(List<OptionalEntity> optionalbooks) {
+        this.optionalbooks = optionalbooks;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
     }
 }

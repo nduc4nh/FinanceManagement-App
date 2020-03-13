@@ -29,7 +29,6 @@ public class LanguageService implements Services<Language>{
     @Override
     public List<Language> findAllByName(String[] names) {
         // TODO Auto-generated method stub
-        List<Language> langs = (List<Language>) repository.findAll();
         ArrayList <Language> re = new ArrayList<Language>();
         for (String name:names)
         {
@@ -77,5 +76,13 @@ public class LanguageService implements Services<Language>{
     @Override
     public boolean existById(int Id) {
         return repository.existsById(Id);
+    }
+
+    public LanguageRepository getRepository() {
+        return repository;
+    }
+
+    public void setRepository(LanguageRepository repository) {
+        this.repository = repository;
     }
 }

@@ -7,6 +7,7 @@ import com.bookstore.forreal.Model.Services.GenreService;
 import com.bookstore.forreal.Model.Tool.preprocessString;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -20,18 +21,18 @@ public class GenreController {
     @Autowired
     BookService subservice;
 
-    @GetMapping("/Genre/get")
+    @GetMapping("GET/Genre")
     public List<Genre> getAllGenre()
     {
         return service.findAll();
     }
-    @GetMapping("/Genre/get/{id}")
+    @GetMapping("GET/Genre/{id}")
     public Optional<Genre> getGenreById(@PathVariable("id") int id)
     {
         if (!service.existById(id)) return null;
         return service.findById(id);
     }
-    @PostMapping("/Genre/post")
+    @PostMapping("POST/Genre")
     public void addGenre(@RequestParam("name") String name)
     {
         List<Genre> genres = service.findAll();
@@ -43,20 +44,9 @@ public class GenreController {
         newgenre.setCreatedDate(new Date());
         service.Save(newgenre);
     }
-    @PutMapping("/Genre/put/{id}")
-    /*public void modifyGenre(@PathVariable("id") int id,@RequestBody Genre modifiedgenre)
-    {
-        if (!service.existById(id))
-        {
-            return;
-        }
-        Genre thisgenre = service.findById(id).get();
-        thisgenre.setBooks(modifiedgenre.getBooks());
-        thisgenre.setName(modifiedgenre.getName());
-        thisgenre.setModifiledDate(new Date());
-        service.Save(thisgenre);
-    }*/
-    public void modifyGenre(@PathVariable("id") int id,@RequestParam("name") String name,@RequestParam("new") String newone,@RequestParam("remove") String removeone)
+    @PutMapping("PUT/Genre/{id}")
+
+    public void modifyGenre(@PathVariable("id") int id,@Nullable@RequestParam("name") String name,@Nullable@RequestParam("newbook") String newone,@Nullable@RequestParam("removebook") String removeone)
     {
         if (!service.existById(id))
         {
@@ -64,45 +54,28 @@ public class GenreController {
         }
         Genre thisgenre = service.findById(id).get();
         List<Genre> genres = service.findAll();
-        List<Book> books = thisgenre.getBooks(); 
-        Book newOne = subservice.findByName(newone);
-        Book dumbOne = subservice.findByName(removeone);
-        
-        if (dumbOne != null)
-        {   
-            System.out.println("ok");
-            books.remove(dumbOne);
-            dumbOne.getAuthors().remove(thisgenre);
-            dumbOne.setModifiledDate(new Date());
-            subservice.Save(dumbOne);
-        }  
-        
-        if (newOne != null)
-        {    
-            if (!books.contains(newOne)) 
-            {   
-                books.add(newOne);
-                newOne.getGenres().add(thisgenre);
-                newOne.setModifiledDate(new Date());
-            }
-            subservice.Save(newOne);
-        }
 
-        for (Genre ele:genres)
+        bindingAction genreAndbook = new bindingAction<Genre,Book,GenreService,BookService>();
+        if (newone != null) genreAndbook.addToSource(service, subservice, thisgenre, newone, genres);
+        if (removeone != null) genreAndbook.removeFromSource(service, subservice, thisgenre, removeone, genres);
+        if (name != null)
         {
-            String tmp = ele.getName();
-            if (preprocessString.doString(tmp) == preprocessString.doString(name)
-            )
+            for (Genre ele:genres)
             {
-                name = ele.getName();
-                break;
+                String tmp = ele.getName();
+                if (preprocessString.doString(tmp) == preprocessString.doString(name)
+                )
+                {
+                    name = ele.getName();
+                    break;
+                }
             }
+            thisgenre.setName(name);
         }
-        thisgenre.setName(name);
         thisgenre.setModifiledDate(new Date());
         service.Save(thisgenre);
     }
-    @DeleteMapping("/Genre/delete/{id}")
+    @DeleteMapping("DELETE/Genre/{id}")
     public void deleteGenre(@PathVariable("id") int id)
     {
         if (!service.existById(id))

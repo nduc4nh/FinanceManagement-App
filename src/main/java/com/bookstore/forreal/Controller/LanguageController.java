@@ -2,48 +2,62 @@ package com.bookstore.forreal.Controller;
 
 import com.bookstore.forreal.Model.Entities.Book;
 import com.bookstore.forreal.Model.Entities.Language;
+import com.bookstore.forreal.Model.Entities.OptionalEntity;
 import com.bookstore.forreal.Model.Services.BookService;
 import com.bookstore.forreal.Model.Services.LanguageService;
+import com.bookstore.forreal.Model.Services.OptionalService;
 import com.bookstore.forreal.Model.Tool.preprocessString;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+
+
 @RestController
 public class LanguageController {
     @Autowired
     LanguageService service;
     @Autowired
-    BookService subservice;
+    OptionalService subservice;
     
-    @GetMapping("Language/get")
+    @GetMapping("GET/Language")
     public List<Language> getAllLanguage()
     {
         return service.findAll();
     }
-    @GetMapping("Language/get/{id}")
+    @GetMapping("GET/Language/{id}")
     public Optional<Language> getLanguageById(@PathVariable("id") Integer id)
     {
         return service.findById(id);
     }
 
-    @PostMapping("Language/post")
-    public void addLanguage(@RequestParam("name") String name)
-    {
+    @PostMapping("POST/Language")
+    public void addLanguage(@RequestParam("name") String name ,@Nullable@RequestParam("price") String price)
+    {   
         List<Language> tmpLanguages = service.findAll();
         for (Language ele:tmpLanguages) {
             if (ele.getName().equals(name)) return;
         }
         Language newLanguage = new Language(name);
+        try{
+            Long newprice = Long.parseLong(preprocessString.doString(price));
+            if (newprice < 0) return;
+            newLanguage.setPrice(newprice);
+        }
+        catch (Exception e)
+        {
+            newLanguage.setPrice(0);
+        }
         newLanguage.setCreatedDate(new Date());
         service.Save(newLanguage);
     }
 
-    @RequestMapping("Language/put/{id}")
+    @RequestMapping("PUT/Language/{id}")
     /*public void modifyLanguage(@PathVariable("id") int id,@RequestBody Language newform)
     {
         if (!service.existById(id))
@@ -56,7 +70,11 @@ public class LanguageController {
         thislang.setModifiledDate(new Date());
         service.Save(thislang);
     }*/
-    public void modifyLanguage(@PathVariable("id") int id,@RequestParam("name") String name,@RequestParam("new") String newone,@RequestParam("remove") String removeone)
+    public void modifyLanguage(@PathVariable("id") int id,
+    @Nullable@RequestParam("price") String price,
+    @Nullable@RequestParam("name") String name,
+    @Nullable@RequestParam("newbook") String newbook,
+    @Nullable@RequestParam("removebook") String removebook)
     {
         if (!service.existById(id))
         {
@@ -64,60 +82,48 @@ public class LanguageController {
         }
         Language thislang = service.findById(id).get();
         List<Language> langs = service.findAll();
-        List<Book> books = thislang.getBooks(); 
-        Book newOne = subservice.findByName(newone);
-        Book dumbOne = subservice.findByName(removeone);
-        
-        if (dumbOne != null)
-        {   
-            System.out.println("ok");
-            books.remove(dumbOne);
-            dumbOne.getAuthors().remove(thislang);
-            dumbOne.setModifiledDate(new Date());
-            subservice.Save(dumbOne);
-        }  
-        
-        if (newOne != null)
-        {    
-            if (!books.contains(newOne)) 
-            {   
-                books.add(newOne);
-                newOne.getLanguages().add(thislang);
-                newOne.setModifiledDate(new Date());
-            }
-            subservice.Save(newOne);
-        }
 
-        for (Language ele:langs)
+        try{
+            Long newprice = Long.parseLong(preprocessString.doString(price));
+            if (newprice > 0) thislang.setPrice(newprice);
+        }
+        catch (Exception e){}
+        
+        bindingAction langAndbook = new bindingAction<Language,Book,LanguageService,BookService>();
+        if (newbook != null) langAndbook.addToSource(service, subservice, thislang, newbook, langs);
+        if (removebook != null) langAndbook.removeFromSource(service, subservice, thislang, removebook, langs);
+        if (name != null)
         {
-            String tmp = ele.getName();
-            if (preprocessString.doString(tmp) == preprocessString.doString(name)
-            )
+            for (Language ele:langs)
             {
-                name = ele.getName();
-                break;
+                String tmp = ele.getName();
+                if (preprocessString.doString(tmp) == preprocessString.doString(name)
+                )
+                {
+                    name = ele.getName();
+                    break;
+                }
             }
+            thislang.setName(name);
         }
-
-        thislang.setName(name);
         thislang.setModifiledDate(new Date());
         service.Save(thislang);
     }
 
-    @RequestMapping("Language/delete/{id}")
-    public void deleteLanguage(@PathVariable("id") int id)
+    @RequestMapping("DELETE/Language/{id}")
+    public void deleteLanguage(@PathVariable("id") int id) throws Exception
     {
         if (service.existById(id))
         {
-            return;
+            throw new Exception("Invalid id");
         }
         Language tmplang = service.findById(id).get();
-        List<Book> books = tmplang.getBooks();
-        for(Book ele:books)
+        List<OptionalEntity> books = tmplang.getOptionalbook();
+        for(OptionalEntity ele:books)
         {
-            ele.getLanguages().remove(tmplang);
+            ele.setLang(null);
         }
-        tmplang.setBooks(null);
+        tmplang.setOptionalbook(null);
         subservice.saveAll(books); 
         service.deleteById(id);
     }
