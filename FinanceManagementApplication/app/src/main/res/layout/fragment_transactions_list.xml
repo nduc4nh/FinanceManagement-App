@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frame_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FDFAFA">
+
+    <ListView
+        android:id="@+id/trans_list_ele"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:divider="@android:drawable/divider_horizontal_dark"
+        android:dividerHeight="5dp" />
+
+</FrameLayout>

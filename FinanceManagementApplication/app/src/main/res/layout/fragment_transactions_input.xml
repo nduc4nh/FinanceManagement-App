@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <TableRow
+            android:id="@+id/choose_row_trans"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            tools:visibility="invisible">
+
+            <Button
+                android:id="@+id/button_choose_cate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Category"
+                android:textColor="#877A7A"
+                android:textSize="10sp"
+                app:backgroundTint="#EDE7F6" />
+
+            <TextView
+                android:id="@+id/trans_cate_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_weight="20"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="No category"
+                android:textColor="#EF5350" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/choose_row_date"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            tools:visibility="invisible">
+
+            <Button
+                android:id="@+id/button_choose_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Date"
+                android:textColor="#877A7A"
+                android:textSize="10sp"
+                app:backgroundTint="#EDE7F6" />
+
+            <TextView
+                android:id="@+id/trans_date_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_weight="20"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="No date"
+                android:textColor="#EF5350" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/name_row_trans"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/trans_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Name" />
+
+            <EditText
+                android:id="@+id/trans_name_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:ems="10"
+                android:inputType="textPersonName" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/desc_row_trans"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/trans_amount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:text="Amount" />
+
+            <EditText
+                android:id="@+id/trans_amount_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="20"
+                android:ems="10"
+                android:hint="Amount of transaction"
+                android:inputType="number"
+                android:numeric="integer" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/period_row"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            tools:visibility="invisible">
+
+            <TextView
+                android:id="@+id/period_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="20"
+                android:ems="10"
+                android:gravity="center"
+                android:inputType="textPersonName"
+                android:textColor="@android:color/tab_indicator_text" />
+
+        </TableRow>
+
+    </TableLayout>
+</FrameLayout>
